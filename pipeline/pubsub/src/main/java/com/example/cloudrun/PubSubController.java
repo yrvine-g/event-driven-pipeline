@@ -19,6 +19,8 @@ package com.example.cloudrun;
 // [START cloudrun_pubsub_handler]
 // [START run_pubsub_handler]
 import java.util.Base64;
+import java.util.Map;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -40,13 +42,36 @@ public class PubSubController {
       return new ResponseEntity(msg, HttpStatus.BAD_REQUEST);
     }
 
-    String data = message.getData();
-    String target =
-        !StringUtils.isEmpty(data) ? new String(Base64.getDecoder().decode(data)) : "World";
-    String msg = "Hello " + target + "!";
-
-    System.out.println(msg);
-    return new ResponseEntity(msg, HttpStatus.OK);
+    Map<String, String> attributes = message.getAttributes();
+    if (attributes != null) { 
+        attributes.forEach((key, value) -> System.out.println(key + " : " + value));
+        String objectId = attributes.get("objectId");
+        String[] parsedObjectId = objectId.split("/");
+        String triggerFilename = "trigger.txt";
+        if (parsedObjectId.length >= 4) {
+            String project = parsedObjectId[0];
+            String dataset = parsedObjectId[1];
+            String table = parsedObjectId[2];
+            String name = parsedObjectId[3];
+            System.out.println("Filename" + name);
+            if (triggerFilename.equals(name)) {
+                System.out.println("trigger file");
+                //call bq insert function
+                return new ResponseEntity("triggered successfully", HttpStatus.OK);
+            } else {
+                System.out.println("Not trigger file");
+                return new ResponseEntity("Not trigger file", HttpStatus.OK);
+            }
+        } else {
+            System.out.println("The object id is formatted incorrectly");
+            return new ResponseEntity("The object id is formatted incorrectly", HttpStatus.OK);
+        }
+    
+    } else {
+        System.out.println("No attributes");
+        return new ResponseEntity("No attributes", HttpStatus.OK);
+    }
+    
   }
 }
 // [END run_pubsub_handler]

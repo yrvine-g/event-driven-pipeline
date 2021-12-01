@@ -15,6 +15,7 @@
  */
 
 package com.example.cloudrun;
+import java.util.Map;
 
 // Body.Message is the payload of a Pub/Sub event. Please refer to the docs for
 // additional information regarding Pub/Sub events.
@@ -37,13 +38,15 @@ public class Body {
     private String messageId;
     private String publishTime;
     private String data;
+    private Map attributes;
 
     public Message() {}
 
-    public Message(String messageId, String publishTime, String data) {
+    public Message(String messageId, String publishTime, String data, Map attributes) {
       this.messageId = messageId;
       this.publishTime = publishTime;
       this.data = data;
+      this.attributes = attributes;
     }
 
     public String getMessageId() {
@@ -68,6 +71,13 @@ public class Body {
 
     public void setData(String data) {
       this.data = data;
+    }
+    public Map getAttributes() {
+     return attributes;
+    }
+  
+    public void setAttrubute(Map attributes) {
+      this.attributes = attributes;
     }
   }
 }
