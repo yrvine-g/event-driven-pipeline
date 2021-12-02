@@ -44,20 +44,25 @@ public class PubSubController {
 
     Map<String, String> attributes = message.getAttributes();
     if (attributes != null) { 
+
         attributes.forEach((key, value) -> System.out.println(key + " : " + value));
+        String bucket = attributes.get("bucketId");
         String objectId = attributes.get("objectId");
-        String[] parsedObjectId = objectId.split("/");
+
         String triggerFilename = "trigger.txt";
+        String[] parsedObjectId = objectId.split("/");
+        
         if (parsedObjectId.length >= 4) {
             String project = parsedObjectId[0];
             String dataset = parsedObjectId[1];
             String table = parsedObjectId[2];
             String name = parsedObjectId[3];
-            System.out.println("Filename" + name);
+
             if (triggerFilename.equals(name)) {
                 System.out.println("trigger file");
                 //call bq insert function
-                BqTableInsertion.bqTableInsertion();
+                String tableFormat = "AVRO";
+                BqTableInsertion.bqTableInsertion(bucket, project, dataset, table, tableFormat);
                 return new ResponseEntity("triggered successfully", HttpStatus.OK);
             } else {
                 System.out.println("Not trigger file");

@@ -15,13 +15,17 @@ import com.google.cloud.bigquery.TableId;
 public class BqTableInsertion {
 
 
-  //public static void bqTableInsertion(String projectName, String datasetName, String tableName, String tableFormat, String sourceUri) {
-  public static void bqTableInsertion() {  
-    String sourceUri = "gs://event-driven-pipeline-bucket/yrvine-rotation-demo/san_francisco_bikeshare/bikeshare_regions/bikeshare_regions*";
-    String tableFormat = "AVRO";
-    String projectName = "yrvine-rotation-demo";
-    String datasetName = "san_francisco_bikeshare";
-    String tableName = "bikeshare_regions";
+  public static void bqTableInsertion(String bucketName, String projectName, String datasetName, String tableName, String tableFormat) {
+//   public static void bqTableInsertion() {  
+//     String sourceUri = "gs://event-driven-pipeline-bucket/yrvine-rotation-demo/san_francisco_bikeshare/bikeshare_regions/bikeshare_regions*";
+//     String tableFormat = "AVRO";
+//     String projectName = "yrvine-rotation-demo";
+//     String datasetName = "san_francisco_bikeshare";
+//     String tableName = "bikeshare_regions";
+
+    //create sourceUri with format --> gs://bucket/project/dataset/table/table*
+    String sourceUri = String.format("gs://%s/%s/%s/%s/%s*",bucketName, projectName, datasetName,tableName, tableName);
+
     try {
 
       // Initialize client that will be used to send requests. This client only needs to be created
@@ -48,8 +52,6 @@ public class BqTableInsertion {
             "BigQuery was unable to load into the table due to an error:"
                 + job.getStatus().getError());
       }
-
-
         
     } catch (BigQueryException | InterruptedException e) {
       System.out.println("Exception occured during insertion \n" + e.toString());
