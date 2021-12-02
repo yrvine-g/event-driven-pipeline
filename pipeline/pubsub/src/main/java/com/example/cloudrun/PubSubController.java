@@ -57,6 +57,7 @@ public class PubSubController {
             if (triggerFilename.equals(name)) {
                 System.out.println("trigger file");
                 //call bq insert function
+                BqTableInsertion.bqTableInsertion();
                 return new ResponseEntity("triggered successfully", HttpStatus.OK);
             } else {
                 System.out.println("Not trigger file");
