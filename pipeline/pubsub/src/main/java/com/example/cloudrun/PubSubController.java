@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Google LLC
+ * Copyright 2019 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,14 @@
  * limitations under the License.
  */
 
-
 package com.example.cloudrun;
 
-import lombok.extern.log4j.Log4j2;
+// [START cloudrun_pubsub_handler]
+// [START run_pubsub_handler]
+import java.util.Base64;
+import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,39 +29,56 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+// PubsubController consumes a Pub/Sub message.
 @RestController
-@Log4j2
 public class PubSubController {
-
-  private static final String TRIGGER_FILE_NAME = "trigger.txt";
-  private static final String FILE_FORMAT = "AVRO";
-
-
   @RequestMapping(value = "/", method = RequestMethod.POST)
-  public ResponseEntity receiveMessage(@RequestBody PubSubMessageBody pubSubMessageBody) {
-    // Get PubSub pubSubMessage from request body.
-    PubSubMessageBody.PubSubMessage pubSubMessage = pubSubMessageBody.getMessage();
-    if (pubSubMessage == null) {
-      log.info("Bad Request: invalid Pub/Sub pubSubMessage format");
-      return new ResponseEntity("invalid Pub/Sub pubSubMessage", HttpStatus.BAD_REQUEST);
-    }
-    try {
-      PubSubMessageProperties pubSubMessageProperties = PubSubMessageParser.parsePubSubMessage(
-          pubSubMessage);
-      if (TRIGGER_FILE_NAME.equals(pubSubMessageProperties.getTriggerFile())) {
-        log.info("Found Trigger file, started BQ insert");
-        BQAccessor.insertIntoBQ(pubSubMessageProperties, FILE_FORMAT);
-        GCSAccessor.archiveFiles(pubSubMessageProperties);
-        return new ResponseEntity("triggered successfully", HttpStatus.OK);
-      } else {
-        log.info("Not trigger file");
-        return new ResponseEntity("Not trigger file", HttpStatus.OK);
-      }
-    } catch(RuntimeException e){
-      log.error("failed to process the message", e);
-      return new ResponseEntity(e.getMessage(), HttpStatus.OK);
+  public ResponseEntity receiveMessage(@RequestBody Body body) {
+    // Get PubSub message from request body.
+    Body.Message message = body.getMessage();
+    if (message == null) {
+      String msg = "Bad Request: invalid Pub/Sub message format";
+      System.out.println(msg);
+      return new ResponseEntity(msg, HttpStatus.BAD_REQUEST);
     }
 
+    Map<String, String> attributes = message.getAttributes();
+    if (attributes != null) { 
 
+        attributes.forEach((key, value) -> System.out.println(key + " : " + value));
+        String bucket = attributes.get("bucketId");
+        String objectId = attributes.get("objectId");
+
+        String triggerFilename = "trigger.txt";
+        String[] parsedObjectId = objectId.split("/");
+        
+        if (parsedObjectId.length >= 4) {
+            String project = parsedObjectId[0];
+            String dataset = parsedObjectId[1];
+            String table = parsedObjectId[2];
+            String name = parsedObjectId[3];
+
+            if (triggerFilename.equals(name)) {
+                System.out.println("trigger file");
+                //call bq insert function
+                String tableFormat = "AVRO";
+                BqTableInsertion.bqTableInsertion(bucket, project, dataset, table, tableFormat);
+                return new ResponseEntity("triggered successfully", HttpStatus.OK);
+            } else {
+                System.out.println("Not trigger file");
+                return new ResponseEntity("Not trigger file", HttpStatus.OK);
+            }
+        } else {
+            System.out.println("The object id is formatted incorrectly");
+            return new ResponseEntity("The object id is formatted incorrectly", HttpStatus.OK);
+        }
+    
+    } else {
+        System.out.println("No attributes");
+        return new ResponseEntity("No attributes", HttpStatus.OK);
+    }
+    
   }
 }
+// [END run_pubsub_handler]
+// [END cloudrun_pubsub_handler]

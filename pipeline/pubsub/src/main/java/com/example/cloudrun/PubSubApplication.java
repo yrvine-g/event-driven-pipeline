@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Google LLC
+ * Copyright 2019 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,3 +27,5 @@ public class PubSubApplication {
     SpringApplication.run(PubSubApplication.class, args);
   }
 }
+// [END run_pubsub_server]
+// [END cloudrun_pubsub_server]
