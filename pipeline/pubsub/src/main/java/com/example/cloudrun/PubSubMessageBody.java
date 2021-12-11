@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google LLC
+ * Copyright 2021 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,35 +14,39 @@
  * limitations under the License.
  */
 
+
 package com.example.cloudrun;
+
 import java.util.Map;
 
 // Body.Message is the payload of a Pub/Sub event. Please refer to the docs for
 // additional information regarding Pub/Sub events.
-public class Body {
+public class PubSubMessageBody {
 
-  private Message message;
+  private PubSubMessage message;
 
-  public Body() {}
+  public PubSubMessageBody() {
+  }
 
-  public Message getMessage() {
+  public PubSubMessage getMessage() {
     return message;
   }
 
-  public void setMessage(Message message) {
+  public void setMessage(PubSubMessage message) {
     this.message = message;
   }
 
-  public class Message {
+  public class PubSubMessage {
 
     private String messageId;
     private String publishTime;
     private String data;
-    private Map attributes;
+    private Map<String, String> attributes;
 
-    public Message() {}
+    public PubSubMessage() {
+    }
 
-    public Message(String messageId, String publishTime, String data, Map attributes) {
+    public PubSubMessage(String messageId, String publishTime, String data, Map attributes) {
       this.messageId = messageId;
       this.publishTime = publishTime;
       this.data = data;
@@ -72,11 +76,11 @@ public class Body {
     public void setData(String data) {
       this.data = data;
     }
+
     public Map getAttributes() {
-     return attributes;
+      return attributes;
     }
-  
-    public void setAttrubute(Map attributes) {
+    public void setAttributes(Map attributes) {
       this.attributes = attributes;
     }
   }
