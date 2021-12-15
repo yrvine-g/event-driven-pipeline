@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 @RestController
 @Log4j2
@@ -44,16 +45,28 @@ public class PubSubController {
     try {
       PubSubMessageProperties pubSubMessageProperties = PubSubMessageParser.parsePubSubMessage(
           pubSubMessage);
-      if (TRIGGER_FILE_NAME.equals(pubSubMessageProperties.getTriggerFile())) {
-        log.info("Found Trigger file, started BQ insert");
-        BQAccessor.insertIntoBQ(pubSubMessageProperties, FILE_FORMAT);
-        GCSAccessor.archiveFiles(pubSubMessageProperties);
-        return new ResponseEntity("triggered successfully", HttpStatus.OK);
-      } else {
-        log.info("Not trigger file");
-        return new ResponseEntity("Not trigger file", HttpStatus.OK);
+      if (pubSubMessageProperties == null) {
+        PubSubMessageData pubSubMessageData = PubSubMessageParser.parsePubSubMessageData(pubSubMessage.getData());
+        log.info("Resource Name:{}", pubSubMessageData.getProtoPayload().getResourceName());
+        log.info("Job state status:{}", pubSubMessageData.getProtoPayload().getMetadata().getJobChange().getJob().getJobStatus().getJobState());
+        // check for error
+        if (pubSubMessageData.getProtoPayload().getMetadata().getJobChange().getJob().getJobStatus().getError() == null) {
+            //archival here
+        }
+        return new ResponseEntity("job completed", HttpStatus.OK);
+      } else{ 
+        //pubsub message was a gcs notification
+        if (TRIGGER_FILE_NAME.equals(pubSubMessageProperties.getTriggerFile())) {
+          log.info("Found Trigger file, started BQ insert");
+          BQAccessor.insertIntoBQ(pubSubMessageProperties, FILE_FORMAT);
+          //GCSAccessor.archiveFiles(pubSubMessageProperties);
+          return new ResponseEntity("triggered successfully", HttpStatus.OK);
+        } else {
+          log.info("Not trigger file");
+          return new ResponseEntity("Not trigger file", HttpStatus.OK);
+        }
       }
-    } catch(RuntimeException e){
+    } catch(RuntimeException | JsonProcessingException e){
       log.error("failed to process the message", e);
       return new ResponseEntity(e.getMessage(), HttpStatus.OK);
     }

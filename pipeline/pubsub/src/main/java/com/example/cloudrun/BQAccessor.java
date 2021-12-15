@@ -23,6 +23,7 @@ import com.google.cloud.bigquery.ExternalTableDefinition;
 import com.google.cloud.bigquery.FormatOptions;
 import com.google.cloud.bigquery.Job;
 import com.google.cloud.bigquery.JobInfo;
+import com.google.cloud.bigquery.JobId;
 import com.google.cloud.bigquery.QueryJobConfiguration;
 import lombok.extern.log4j.Log4j2;
 
@@ -68,18 +69,10 @@ public class BQAccessor {
       log.info("query we fired: {}" ,query);
       JobInfo jobInfo = JobInfo.of(queryConfig);
       Job job = bigquery.create(jobInfo);
+      JobId jobId = job.getJobId();
+      log.info("job id: {}", jobId);
 
-      job = job.waitFor();
-      if (job.isDone()) {
-        log.info("Avro from GCS successfully loaded in a table");
-      } else {
-        log.info(
-            "BigQuery was unable to load into the table due to an error:"
-                + job.getStatus().getError());
-        throw new RuntimeException("BigQuery was unable to load into the table due to an error: " + job.getStatus().getError().getMessage());
-      }
-
-    } catch (BigQueryException | InterruptedException e) {
+    } catch (Exception e) {
       throw new RuntimeException("Exception occured during insertion to BQ", e);
     }
   }
