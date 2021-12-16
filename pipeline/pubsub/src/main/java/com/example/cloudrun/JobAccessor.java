@@ -27,6 +27,7 @@ import com.google.cloud.bigquery.JobId;
 import com.google.cloud.bigquery.QueryJobConfiguration;
 import com.google.cloud.bigquery.JobConfiguration;
 import lombok.extern.log4j.Log4j2;
+
 import java.util.Map;
 import java.util.List;
 import java.util.ArrayList;
@@ -35,44 +36,44 @@ import java.util.ArrayList;
 
 public class JobAccessor {
 
-  public static List<String> checkJobCompeletion(PubSubMessageData pubSubMessageData){
-    log.info("Resource Name:{}", pubSubMessageData.getProtoPayload().getResourceName());    
-    //check for error
-    try {        
-        String resourceName = pubSubMessageData.getProtoPayload().getResourceName();
-        String []parsedName = resourceName.split("/");
-        String jobName = parsedName[parsedName.length-1];
+    public static List<String> checkJobCompeletion(PubSubMessageData pubSubMessageData) {
+        log.info("Resource Name:{}", pubSubMessageData.getProtoPayload().getResourceName());
 
-        BigQuery bigquery = BigQueryOptions.getDefaultInstance().getService();
-        JobId jobId = JobId.of(jobName);
-        Job job = bigquery.getJob(jobId);
+        try {
+            String resourceName = pubSubMessageData.getProtoPayload().getResourceName();
+            String[] parsedName = resourceName.split("/");
+            String jobName = parsedName[parsedName.length - 1];
 
-        List<String> allSourceUris = new ArrayList<String>();
+            BigQuery bigquery = BigQueryOptions.getDefaultInstance().getService();
+            JobId jobId = JobId.of(jobName);
+            Job job = bigquery.getJob(jobId);
 
-        if (job.isDone()) {
-            log.info("Job successfully loaded BQ table");
-            JobConfiguration jobConfig = job.getConfiguration();
-            if (jobConfig instanceof QueryJobConfiguration) {
-                Map<String, ExternalTableDefinition> tableConfigs = ((QueryJobConfiguration) jobConfig).getTableDefinitions();
-                tableConfigs.forEach((tableKey, tableValue) -> tableValue.getSourceUris().forEach((item) -> allSourceUris.add(strWithoutWildcard(item))));
-                log.info("end of tables");
-            } else{
-                log.info("job configuration is not an instance");
+            List<String> allSourceUris = new ArrayList<String>();
+            //check for error
+            if (job.isDone()) {
+                log.info("Job successfully loaded BQ table");
+                JobConfiguration jobConfig = job.getConfiguration();
+                if (jobConfig instanceof QueryJobConfiguration) {
+                    Map<String, ExternalTableDefinition> tableConfigs = ((QueryJobConfiguration) jobConfig).getTableDefinitions();
+                    tableConfigs.forEach((tableKey, tableValue) -> tableValue.getSourceUris().forEach((item) -> allSourceUris.add(removeWildcard(item))));
+                    log.info("end of tables");
+                } else {
+                    log.info("job configuration is not an instance");
+                }
+            } else {
+                log.info("BigQuery was unable to load into the table due to an error:" + job.getStatus().getError());
+                throw new RuntimeException("BigQuery was unable to load into the table due to an error: " + job.getStatus().getError().getMessage());
             }
-        } else {
-            log.info("BigQuery was unable to load into the table due to an error:" + job.getStatus().getError());
-            throw new RuntimeException("BigQuery was unable to load into the table due to an error: " + job.getStatus().getError().getMessage());
+            return allSourceUris;
+        } catch (NullPointerException | BigQueryException e) {
+            log.info("Job not retrieved. \n" + e.toString());
+            return null;
         }
-        return allSourceUris;
-      } catch (NullPointerException | BigQueryException e) {
-        log.info("Job not retrieved. \n" + e.toString());
-        return null;
-      }
-  }
+    }
 
-  public static String strWithoutWildcard(String str) {
-    String[] arrOfStr = str.split("\\*", 0);
-    return arrOfStr[0];
-  }
-  
+    public static String removeWildcard(String str) {
+        String[] arrOfStr = str.split("\\*", 0);
+        return arrOfStr[0];
+    }
+
 }

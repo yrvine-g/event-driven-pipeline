@@ -29,7 +29,7 @@ import java.util.List;
 
 @RestController
 @Log4j2
-public class PubSubController {
+public class PipelineController {
 
   private static final String TRIGGER_FILE_NAME = "trigger.txt";
   private static final String FILE_FORMAT = "AVRO";
@@ -44,10 +44,11 @@ public class PubSubController {
       return new ResponseEntity("invalid Pub/Sub pubSubMessage", HttpStatus.BAD_REQUEST);
     }
     try {
-      PubSubMessageProperties pubSubMessageProperties = PubSubMessageParser.parsePubSubMessage(
+      PubSubMessageProperties pubSubMessageProperties = PubSubMessageParser.parsePubSubProperties(
           pubSubMessage);
       if (pubSubMessageProperties == null) {
-        PubSubMessageData pubSubMessageData = PubSubMessageParser.parsePubSubMessageData(pubSubMessage.getData());
+        //parse pubsub message as bq job notification
+        PubSubMessageData pubSubMessageData = PubSubMessageParser.parsePubSubData(pubSubMessage.getData());
         List<String> sourceUris = JobAccessor.checkJobCompeletion(pubSubMessageData);
         sourceUris.forEach((sourceUri -> GCSAccessor.archiveFiles(sourceUri)));
         return new ResponseEntity("job completed", HttpStatus.OK);

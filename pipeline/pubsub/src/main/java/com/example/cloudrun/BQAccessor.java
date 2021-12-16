@@ -35,12 +35,6 @@ public class BQAccessor {
 
   public static void insertIntoBQ(PubSubMessageProperties pubSubMessageProperties,
       String fileFormat) {
-//   public static void bqTableInsertion() {
-//     String sourceUri = "gs://event-driven-pipeline-bucket/yrvine-rotation-demo/san_francisco_bikeshare/bikeshare_regions/bikeshare_regions*";
-//     String tableFormat = "AVRO";
-//     String projectName = "yrvine-rotation-demo";
-//     String datasetName = "san_francisco_bikeshare";
-//     String tableName = "bikeshare_regions";
 
     //create sourceUri with format --> gs://bucket/project/dataset/table/table*
     String sourceUri = String.format("gs://%s/%s/%s/%s/%s*", pubSubMessageProperties.getBucketId(),
@@ -58,7 +52,6 @@ public class BQAccessor {
 
       ExternalTableDefinition externalTable = ExternalTableDefinition.newBuilder(sourceUri, format)
           .build();
-      //TO DO: Define table schema
 
       log.info("external table config: {}", externalTable);
 

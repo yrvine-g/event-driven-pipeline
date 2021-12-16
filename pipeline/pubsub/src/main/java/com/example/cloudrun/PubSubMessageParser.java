@@ -12,32 +12,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 @Log4j2
 public class PubSubMessageParser {
 
-  public static PubSubMessageProperties parsePubSubMessage(PubSubMessage message) {
+  public static PubSubMessageProperties parsePubSubProperties(PubSubMessage message) {
 
     Map<String, String> attributes = message.getAttributes();
     if (attributes == null) {
       throw new RuntimeException("No attributes in the pubsub message");
     }
-    // log.info("begin attributes");
-    // attributes.forEach((key, value) -> log.info(key + " : " + value));
-    // log.info("end attributes");
-
-    // String data = message.getData();
-    // String dataStr =
-    //     !StringUtils.isEmpty(data) ? new String(Base64.getDecoder().decode(data)) : "";
-    // log.info("begin data");
-    // log.info(dataStr);
-    // log.info("end data");
-
-    // PubSubMessageData data = message.getData();
-    // if (data.getInsertId() != null) {
-    //     log.info("**insert id**");
-    //     log.info(data.getInsertId());
-    //     log.info("Resource Name:{}", data.getPayload().getResourceName());
-    //     //log.info("Job status:{}" ,data.getPayload().getMetadata().getJobChange().getJob().getJobStatus().getJobState());
-    // } else {
-    //     log.info("**** insert id is null****");
-    // }
 
     String bucketId = attributes.get("bucketId");
     String objectId = attributes.get("objectId");
@@ -62,7 +42,7 @@ public class PubSubMessageParser {
         .triggerFile(triggerFileName).build();
   }
 
-  public static PubSubMessageData parsePubSubMessageData(String data) throws JsonProcessingException{
+  public static PubSubMessageData parsePubSubData(String data) throws JsonProcessingException{
     String dataStr =
         !StringUtils.isEmpty(data) ? new String(Base64.getDecoder().decode(data)) : "";
     ObjectMapper mapper = new ObjectMapper();
