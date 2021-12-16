@@ -18,16 +18,16 @@ public class PubSubMessageParser {
     if (attributes == null) {
       throw new RuntimeException("No attributes in the pubsub message");
     }
-    log.info("begin attributes");
-    attributes.forEach((key, value) -> log.info(key + " : " + value));
-    log.info("end attributes");
+    // log.info("begin attributes");
+    // attributes.forEach((key, value) -> log.info(key + " : " + value));
+    // log.info("end attributes");
 
-    String data = message.getData();
-    String dataStr =
-        !StringUtils.isEmpty(data) ? new String(Base64.getDecoder().decode(data)) : "";
-    log.info("begin data");
-    log.info(dataStr);
-    log.info("end data");
+    // String data = message.getData();
+    // String dataStr =
+    //     !StringUtils.isEmpty(data) ? new String(Base64.getDecoder().decode(data)) : "";
+    // log.info("begin data");
+    // log.info(dataStr);
+    // log.info("end data");
 
     // PubSubMessageData data = message.getData();
     // if (data.getInsertId() != null) {

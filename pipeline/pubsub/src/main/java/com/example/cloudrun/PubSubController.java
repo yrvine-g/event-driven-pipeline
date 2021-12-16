@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import java.util.List;
 
 @RestController
 @Log4j2
@@ -47,12 +48,8 @@ public class PubSubController {
           pubSubMessage);
       if (pubSubMessageProperties == null) {
         PubSubMessageData pubSubMessageData = PubSubMessageParser.parsePubSubMessageData(pubSubMessage.getData());
-        log.info("Resource Name:{}", pubSubMessageData.getProtoPayload().getResourceName());
-        log.info("Job state status:{}", pubSubMessageData.getProtoPayload().getMetadata().getJobChange().getJob().getJobStatus().getJobState());
-        // check for error
-        if (pubSubMessageData.getProtoPayload().getMetadata().getJobChange().getJob().getJobStatus().getError() == null) {
-            //archival here
-        }
+        List<String> sourceUris = JobAccessor.checkJobCompeletion(pubSubMessageData);
+        sourceUris.forEach((sourceUri -> GCSAccessor.archiveFiles(sourceUri)));
         return new ResponseEntity("job completed", HttpStatus.OK);
       } else{ 
         //pubsub message was a gcs notification

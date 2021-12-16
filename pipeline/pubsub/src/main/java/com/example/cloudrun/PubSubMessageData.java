@@ -46,111 +46,15 @@ public class PubSubMessageData {
   }
 
   public class ProtoPayload {
-      private Metadata metadata;
       private String resourceName;
 
       public ProtoPayload(){
       }
-
-    //   public ProtoPayload(Metadata metadata, String resourceName){
-    //     this.metadata = metadata;
-    //     this.resourceName = resourceName;
-    //   }
       public String getResourceName() {
         return resourceName;
       }
       public void setResourceName(String resourceName) {
         this.resourceName = resourceName;
-      }
-    
-      public Metadata getMetadata() {
-        return metadata;
-      }
-      public void setMetadata(Metadata metadata) {
-          this.metadata = metadata;
-      }
-
-      public class Metadata {
-
-        private JobChange jobChange;
-        
-        public Metadata() {
-        }
-
-        public Metadata(JobChange jobChange) {
-            this.jobChange = jobChange;
-        }
-        public JobChange getJobChange() {
-            return this.jobChange;
-        }
-        public void setJobChange(JobChange jobChange) {
-            this.jobChange = jobChange;
-        }
-        public class JobChange {
-            private Job job;
-            private String after;
-            public JobChange(){
-
-            }
-            public Job getJob(){
-                return this.job;
-            }
-            public void setJob(Job job) {
-                this.job = job;
-            }
-            public String getAfter(){
-                return this.after;
-            }
-            public void setAfter(String after) {
-                this.after = after;
-            }
-
-            public class Job{
-                private JobStatus jobStatus;
-                private String jobName;
-
-                public Job(){
-                }
-
-                public  Job(JobStatus jobStatus, String jobName){
-                    this.jobName = jobName;
-                    this.jobStatus = jobStatus;
-                }
-                public JobStatus getJobStatus(){
-                    return this.jobStatus;
-                }
-                public void setJobStatus(JobStatus jobStatus) {
-                    this.jobStatus = jobStatus;
-                }
-                public String getJobName(){
-                    return this.jobName;
-                }
-                public void setJobName(String jobName) {
-                    this.jobName = jobName;
-                }
-                public class JobStatus{
-                    private String jobState;
-                    private BigQueryError errorProto;
-                    public JobStatus(){
-                    }
-                    public JobStatus(String jobState, BigQueryError errorProto) {
-                        this.jobState = jobState;
-                        this.errorProto = errorProto;
-                    }
-                    public String getJobState(){
-                        return this.jobState;
-                    }
-                    public void setJobState(String jobState) {
-                        this.jobState = jobState;
-                    }
-                    public BigQueryError getError(){
-                        return this.errorProto;
-                    }
-
-                }
-            }
-        }
-      }
-      
+      }  
   }
 }
