@@ -16,14 +16,12 @@
 
 package com.example.cloudrun;
 
-// [START cloudrun_pubsub_server]
-// [START run_pubsub_server]
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class PubSubApplication {
+public class PipelineApplication {
   public static void main(String[] args) {
-    SpringApplication.run(PubSubApplication.class, args);
+    SpringApplication.run(PipelineApplication.class, args);
   }
 }

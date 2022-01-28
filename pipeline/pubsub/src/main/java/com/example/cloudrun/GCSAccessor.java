@@ -29,19 +29,7 @@ public class GCSAccessor {
 
   private static final Storage storage = StorageOptions.getDefaultInstance().getService();
 
-
-//   public static void main(String[] args) {
-//     String datasetName = "MY_DATASET_NAME";
-//     String tableName = "MY_TABLE_NAME";
-//     String sourceUri = "gs://cloud-samples-data/bigquery/us-states/us-states.avro";
-//     sts
-//   }
-
-  public static void archiveFiles(PubSubMessageProperties pubSubMessageProperties) {
-
-    String sourceUri = String.format("gs://%s/%s/%s/%s/%s", pubSubMessageProperties.getBucketId(),
-        pubSubMessageProperties.getProject(), pubSubMessageProperties.getDataset(),
-        pubSubMessageProperties.getTable(), pubSubMessageProperties.getTable());
+  public static void archiveFiles(String  sourceUri) {
 
     String sourceBucketName = getBucketName(sourceUri);
     String targetBucketName = sourceBucketName + "_archival";

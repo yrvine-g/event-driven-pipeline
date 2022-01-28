@@ -23,6 +23,7 @@ import com.google.cloud.bigquery.ExternalTableDefinition;
 import com.google.cloud.bigquery.FormatOptions;
 import com.google.cloud.bigquery.Job;
 import com.google.cloud.bigquery.JobInfo;
+import com.google.cloud.bigquery.JobId;
 import com.google.cloud.bigquery.QueryJobConfiguration;
 import lombok.extern.log4j.Log4j2;
 
@@ -34,12 +35,6 @@ public class BQAccessor {
 
   public static void insertIntoBQ(PubSubMessageProperties pubSubMessageProperties,
       String fileFormat) {
-//   public static void bqTableInsertion() {
-//     String sourceUri = "gs://event-driven-pipeline-bucket/yrvine-rotation-demo/san_francisco_bikeshare/bikeshare_regions/bikeshare_regions*";
-//     String tableFormat = "AVRO";
-//     String projectName = "yrvine-rotation-demo";
-//     String datasetName = "san_francisco_bikeshare";
-//     String tableName = "bikeshare_regions";
 
     //create sourceUri with format --> gs://bucket/project/dataset/table/table*
     String sourceUri = String.format("gs://%s/%s/%s/%s/%s*", pubSubMessageProperties.getBucketId(),
@@ -57,7 +52,6 @@ public class BQAccessor {
 
       ExternalTableDefinition externalTable = ExternalTableDefinition.newBuilder(sourceUri, format)
           .build();
-      //TO DO: Define table schema
 
       log.info("external table config: {}", externalTable);
 
@@ -68,18 +62,10 @@ public class BQAccessor {
       log.info("query we fired: {}" ,query);
       JobInfo jobInfo = JobInfo.of(queryConfig);
       Job job = bigquery.create(jobInfo);
+      JobId jobId = job.getJobId();
+      log.info("job id: {}", jobId);
 
-      job = job.waitFor();
-      if (job.isDone()) {
-        log.info("Avro from GCS successfully loaded in a table");
-      } else {
-        log.info(
-            "BigQuery was unable to load into the table due to an error:"
-                + job.getStatus().getError());
-        throw new RuntimeException("BigQuery was unable to load into the table due to an error: " + job.getStatus().getError().getMessage());
-      }
-
-    } catch (BigQueryException | InterruptedException e) {
+    } catch (Exception e) {
       throw new RuntimeException("Exception occured during insertion to BQ", e);
     }
   }
