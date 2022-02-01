@@ -1,18 +1,21 @@
 package com.example.cloudrun;
 
-import com.example.cloudrun.PubSubMessageBody.PubSubMessage;
+//import com.example.cloudrun.PubSubMessageBody.PubSubMessage;
 import java.util.Map;
+
+import com.google.protobuf.ByteString;
 import lombok.extern.log4j.Log4j2;
 import java.util.Base64;
 import org.apache.commons.lang3.StringUtils;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.pubsub.v1.PubsubMessage;
 
 
 @Log4j2
 public class PubSubMessageParser {
 
-  public static PubSubMessageProperties parsePubSubProperties(PubSubMessage message) {
+  public static PubSubMessageProperties parsePubSubProperties(PubsubMessage message) {
 
     Map<String, String> attributes = message.getAttributes();
     if (attributes == null) {
@@ -37,14 +40,20 @@ public class PubSubMessageParser {
     String table = parsedObjectId[2];
     String triggerFileName = parsedObjectId[3];
 
+    log.info("Project: " + project);
+    log.info("dataset: " + dataset);
+    log.info("table: " + table);
+    log.info("triggerFIleName: " + triggerFileName);
+
     return PubSubMessageProperties.builder()
         .bucketId(bucketId).project(project).dataset(dataset).table(table)
         .triggerFile(triggerFileName).build();
   }
 
-  public static PubSubMessageData parsePubSubData(String data) throws JsonProcessingException{
-    String dataStr =
-        !StringUtils.isEmpty(data) ? new String(Base64.getDecoder().decode(data)) : "";
+  public static PubSubMessageData parsePubSubData(ByteString data) throws JsonProcessingException{
+    String dataStr = data.toStringUtf8();
+    //String dataStr =
+        //!StringUtils.isEmpty(data) ? new String(Base64.getDecoder().decode(data)) : "";
     ObjectMapper mapper = new ObjectMapper();
     mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
     PubSubMessageData dataObj = mapper.readValue(dataStr, PubSubMessageData.class);

@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.List;
+import com.google.pubsub.v1.PubsubMessage;
 
 @RestController
 @Log4j2
@@ -38,7 +39,7 @@ public class PipelineController {
   @RequestMapping(value = "/", method = RequestMethod.POST)
   public ResponseEntity receiveMessage(@RequestBody PubSubMessageBody pubSubMessageBody) {
     // Get PubSub pubSubMessage from request body.
-    PubSubMessageBody.PubSubMessage pubSubMessage = pubSubMessageBody.getMessage();
+    PubsubMessage pubSubMessage = pubSubMessageBody.getMessage();
     if (pubSubMessage == null) {
       log.info("Bad Request: invalid Pub/Sub pubSubMessage format");
       return new ResponseEntity("invalid Pub/Sub pubSubMessage", HttpStatus.BAD_REQUEST);
@@ -56,7 +57,7 @@ public class PipelineController {
         //pubsub message was a gcs notification
         if (TRIGGER_FILE_NAME.equals(pubSubMessageProperties.getTriggerFile())) {
           log.info("Found Trigger file, started BQ insert");
-          BQAccessor.insertIntoBQ(pubSubMessageProperties, FILE_FORMAT);
+          //BQAccessor.insertIntoBQ(pubSubMessageProperties, FILE_FORMAT);
           //GCSAccessor.archiveFiles(pubSubMessageProperties);
           return new ResponseEntity("triggered successfully", HttpStatus.OK);
         } else {

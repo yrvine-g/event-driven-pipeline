@@ -18,70 +18,23 @@
 package com.example.cloudrun;
 
 import java.util.Map;
+import com.google.pubsub.v1.PubsubMessage;
 
 // Body.Message is the payload of a Pub/Sub event. Please refer to the docs for
 // additional information regarding Pub/Sub events.
 public class PubSubMessageBody {
 
-  private PubSubMessage message;
+  private PubsubMessage message;
 
   public PubSubMessageBody() {
   }
 
-  public PubSubMessage getMessage() {
+  public PubsubMessage getMessage() {
     return message;
   }
 
-  public void setMessage(PubSubMessage message) {
+  public void setMessage(PubsubMessage message) {
     this.message = message;
   }
 
-  public class PubSubMessage {
-
-    private String messageId;
-    private String publishTime;
-    private String data;
-    private Map<String, String> attributes;
-
-    public PubSubMessage() {
-    }
-
-    public PubSubMessage(String messageId, String publishTime, String data, Map attributes) {
-      this.messageId = messageId;
-      this.publishTime = publishTime;
-      this.data = data;
-      this.attributes = attributes;
-    }
-
-    public String getMessageId() {
-      return messageId;
-    }
-
-    public void setMessageId(String messageId) {
-      this.messageId = messageId;
-    }
-
-    public String getPublishTime() {
-      return publishTime;
-    }
-
-    public void setPublishTime(String publishTime) {
-      this.publishTime = publishTime;
-    }
-
-    public String getData() {
-      return data;
-    }
-
-    public void setData(String data) {
-      this.data = data;
-    }
-
-    public Map getAttributes() {
-      return attributes;
-    }
-    public void setAttributes(Map attributes) {
-      this.attributes = attributes;
-    }
-  }
 }
