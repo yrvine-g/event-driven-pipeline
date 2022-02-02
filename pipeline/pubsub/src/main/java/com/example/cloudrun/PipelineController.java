@@ -39,9 +39,10 @@ public class PipelineController {
 
 
   @RequestMapping(value = "/", method = RequestMethod.POST)
-  public ResponseEntity receiveMessage(@RequestBody PubSubMessageBody pubSubMessageBody) {
+  public ResponseEntity receiveMessage(@RequestBody PubsubMessage pubSubMessage) {
     // Get PubSub pubSubMessage from request body.
-    PubsubMessage pubSubMessage = pubSubMessageBody.getMessage();
+    //PubsubMessage pubSubMessage = pubSubMessageBody.getMessage();
+    //PubsubMessage pubSubMessage = pubSubMessageBuilder.build();
     if (pubSubMessage == null) {
       log.info("Bad Request: invalid Pub/Sub pubSubMessage format");
       return new ResponseEntity("invalid Pub/Sub pubSubMessage", HttpStatus.BAD_REQUEST);
