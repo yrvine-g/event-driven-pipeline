@@ -1,6 +1,7 @@
 package com.example.cloudrun;
 
 //import com.example.cloudrun.PubSubMessageBody.PubSubMessage;
+import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
 import com.google.protobuf.ByteString;
@@ -50,8 +51,8 @@ public class PubSubMessageParser {
         .triggerFile(triggerFileName).build();
   }
 
-  public static PubSubMessageData parsePubSubData(ByteString data) throws JsonProcessingException{
-    String dataStr = data.toStringUtf8();
+  public static PubSubMessageData parsePubSubData(ByteString data) throws JsonProcessingException, UnsupportedEncodingException {
+    String dataStr = data.toString("UTF8");
     //String dataStr =
         //!StringUtils.isEmpty(data) ? new String(Base64.getDecoder().decode(data)) : "";
     ObjectMapper mapper = new ObjectMapper();

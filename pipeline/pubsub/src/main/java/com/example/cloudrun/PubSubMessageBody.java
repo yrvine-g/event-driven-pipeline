@@ -24,16 +24,16 @@ import com.google.pubsub.v1.PubsubMessage;
 // additional information regarding Pub/Sub events.
 public class PubSubMessageBody {
 
-  private PubsubMessage message;
+  private PubsubMessage.Builder message;
 
   public PubSubMessageBody() {
   }
 
   public PubsubMessage getMessage() {
-    return message;
+    return message.build();
   }
 
-  public void setMessage(PubsubMessage message) {
+  public void setMessage(PubsubMessage.Builder message) {
     this.message = message;
   }
 

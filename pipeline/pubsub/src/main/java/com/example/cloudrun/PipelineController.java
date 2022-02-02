@@ -25,6 +25,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.core.JsonProcessingException;
+
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 import com.google.pubsub.v1.PubsubMessage;
 
@@ -65,7 +67,7 @@ public class PipelineController {
           return new ResponseEntity("Not trigger file", HttpStatus.OK);
         }
       }
-    } catch(RuntimeException | JsonProcessingException e){
+    } catch(UnsupportedEncodingException | RuntimeException | JsonProcessingException e){
       log.error("failed to process the message", e);
       return new ResponseEntity(e.getMessage(), HttpStatus.OK);
     }
