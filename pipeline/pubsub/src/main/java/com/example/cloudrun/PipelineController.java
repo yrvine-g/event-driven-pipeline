@@ -19,6 +19,7 @@ package com.example.cloudrun;
 
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -38,7 +39,7 @@ public class PipelineController {
   private static final String FILE_FORMAT = "AVRO";
 
 
-  @RequestMapping(value = "/", method = RequestMethod.POST)
+  @RequestMapping(value = "/", method = RequestMethod.POST, headers = "content-type=application/json")
   public ResponseEntity receiveMessage(@RequestBody PubsubMessage pubSubMessage) {
     // Get PubSub pubSubMessage from request body.
     //PubsubMessage pubSubMessage = pubSubMessageBody.getMessage();
