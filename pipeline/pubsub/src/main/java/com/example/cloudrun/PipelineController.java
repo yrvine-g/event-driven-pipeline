@@ -38,8 +38,9 @@ public class PipelineController {
 
 
   @RequestMapping(value = "/", method = RequestMethod.POST)
-  public ResponseEntity receiveMessage(@RequestBody PubsubMessage pubSubMessage) {
+  public ResponseEntity receiveMessage(@RequestBody PipelineRequestBody request) {
     // Get PubSub pubSubMessage from request body.
+    PubsubMessage pubSubMessage = request.getMessage();
     if (pubSubMessage == null) {
       log.info("Bad Request: invalid Pub/Sub pubSubMessage format");
       return new ResponseEntity("invalid Pub/Sub pubSubMessage", HttpStatus.BAD_REQUEST);
@@ -57,7 +58,7 @@ public class PipelineController {
         //pubsub message was a gcs notification
         if (TRIGGER_FILE_NAME.equals(pubSubMessageProperties.getTriggerFile())) {
           log.info("Found Trigger file, started BQ insert");
-          BQAccessor.insertIntoBQ(pubSubMessageProperties, FILE_FORMAT);
+          //BQAccessor.insertIntoBQ(pubSubMessageProperties, FILE_FORMAT);
           //GCSAccessor.archiveFiles(pubSubMessageProperties);
           return new ResponseEntity("triggered successfully", HttpStatus.OK);
         } else {
