@@ -58,7 +58,7 @@ public class PipelineController {
         //pubsub message was a gcs notification
         if (TRIGGER_FILE_NAME.equals(pubSubMessageProperties.getTriggerFile())) {
           log.info("Found Trigger file, started BQ insert");
-          //BQAccessor.insertIntoBQ(pubSubMessageProperties, FILE_FORMAT);
+          BQAccessor.insertIntoBQ(pubSubMessageProperties, FILE_FORMAT);
           //GCSAccessor.archiveFiles(pubSubMessageProperties);
           return new ResponseEntity("triggered successfully", HttpStatus.OK);
         } else {
