@@ -20,12 +20,13 @@ package com.example.cloudrun;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
+
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+
 import com.google.api.services.pubsub.model.PubsubMessage;
 
 
@@ -33,44 +34,71 @@ import com.google.api.services.pubsub.model.PubsubMessage;
 @Log4j2
 public class PipelineController {
 
-  private static final String TRIGGER_FILE_NAME = "trigger.txt";
-  private static final String FILE_FORMAT = "AVRO";
+    private static final String TRIGGER_FILE_NAME = "trigger.txt";
+    private static final String FILE_FORMAT = "AVRO";
 
+    private static final List<String> requiredFields =
+            Arrays.asList("ce-id", "ce-source", "ce-type", "ce-specversion");
 
-  @RequestMapping(value = "/", method = RequestMethod.POST)
-  public ResponseEntity receiveMessage(@RequestBody PipelineRequestBody request) {
-    // Get PubSub pubSubMessage from request body.
-    PubsubMessage pubSubMessage = request.getMessage();
-    if (pubSubMessage == null) {
-      log.info("Bad Request: invalid Pub/Sub pubSubMessage format");
-      return new ResponseEntity("invalid Pub/Sub pubSubMessage", HttpStatus.BAD_REQUEST);
-    }
-    try {
-      PubSubMessageProperties pubSubMessageProperties = PubSubMessageParser.parsePubSubProperties(
-          pubSubMessage);
-      if (pubSubMessageProperties == null) {
-        //parse pubsub message as bq job notification
-        PubSubMessageData pubSubMessageData = PubSubMessageParser.parsePubSubData(pubSubMessage.getData());
-        List<String> sourceUris = JobAccessor.checkJobCompeletion(pubSubMessageData);
-        sourceUris.forEach((sourceUri -> GCSAccessor.archiveFiles(sourceUri)));
-        return new ResponseEntity("job completed", HttpStatus.OK);
-      } else{ 
-        //pubsub message was a gcs notification
-        if (TRIGGER_FILE_NAME.equals(pubSubMessageProperties.getTriggerFile())) {
-          log.info("Found Trigger file, started BQ insert");
-          BQAccessor.insertIntoBQ(pubSubMessageProperties, FILE_FORMAT);
-          //GCSAccessor.archiveFiles(pubSubMessageProperties);
-          return new ResponseEntity("triggered successfully", HttpStatus.OK);
-        } else {
-          log.info("Not trigger file");
-          return new ResponseEntity("Not trigger file", HttpStatus.OK);
+    @RequestMapping(value = "/", method = RequestMethod.POST)
+    public ResponseEntity<String> receiveMessage(
+            @RequestBody Map<String, Object> body, @RequestHeader Map<String, String> headers) {
+        for (String field : requiredFields) {
+            if (headers.get(field) == null) {
+                String msg = String.format("Missing expected header: %s.", field);
+                System.out.println(msg);
+                return new ResponseEntity<String>(msg, HttpStatus.BAD_REQUEST);
+            } else {
+              System.out.println(field + ": " + headers.get(field));
+            }
         }
-      }
-    } catch(RuntimeException | JsonProcessingException e){
-      log.error("failed to process the message", e);
-      return new ResponseEntity(e.getMessage(), HttpStatus.OK);
+
+        if (headers.get("ce-subject") == null) {
+            String msg = "Missing expected header: ce-subject.";
+            System.out.println(msg);
+            return new ResponseEntity<String>(msg, HttpStatus.BAD_REQUEST);
+        }
+
+        System.out.println("BODY:");
+        body.forEach((key, value) -> System.out.println(key + " : " + value));
+
+        String ceSubject = headers.get("ce-subject");
+        String msg = "Detected change in Cloud Storage bucket: " + ceSubject;
+        System.out.println(msg);
+        return new ResponseEntity<String>(msg, HttpStatus.OK);
     }
 
-
-  }
+//  public ResponseEntity receiveMessage(@RequestBody PipelineRequestBody request) {
+//    // Get PubSub pubSubMessage from request body.
+//    PubsubMessage pubSubMessage = request.getMessage();
+//    if (pubSubMessage == null) {
+//      log.info("Bad Request: invalid Pub/Sub pubSubMessage format");
+//      return new ResponseEntity("invalid Pub/Sub pubSubMessage", HttpStatus.BAD_REQUEST);
+//    }
+//    try {
+//      PubSubMessageProperties pubSubMessageProperties = PubSubMessageParser.parsePubSubProperties(
+//          pubSubMessage);
+//      if (pubSubMessageProperties == null) {
+//        //parse pubsub message as bq job notification
+//        PubSubMessageData pubSubMessageData = PubSubMessageParser.parsePubSubData(pubSubMessage.getData());
+//        List<String> sourceUris = JobAccessor.checkJobCompeletion(pubSubMessageData);
+//        sourceUris.forEach((sourceUri -> GCSAccessor.archiveFiles(sourceUri)));
+//        return new ResponseEntity("job completed", HttpStatus.OK);
+//      } else{
+//        //pubsub message was a gcs notification
+//        if (TRIGGER_FILE_NAME.equals(pubSubMessageProperties.getTriggerFile())) {
+//          log.info("Found Trigger file, started BQ insert");
+//          BQAccessor.insertIntoBQ(pubSubMessageProperties, FILE_FORMAT);
+//          //GCSAccessor.archiveFiles(pubSubMessageProperties);
+//          return new ResponseEntity("triggered successfully", HttpStatus.OK);
+//        } else {
+//          log.info("Not trigger file");
+//          return new ResponseEntity("Not trigger file", HttpStatus.OK);
+//        }
+//      }
+//    } catch(RuntimeException | JsonProcessingException e){
+//      log.error("failed to process the message", e);
+//      return new ResponseEntity(e.getMessage(), HttpStatus.OK);
+//    }
+//  }
 }
