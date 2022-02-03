@@ -19,7 +19,6 @@ package com.example.cloudrun;
 
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,7 +28,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.io.UnsupportedEncodingException;
 import java.util.List;
-import com.google.pubsub.v1.PubsubMessage;
+import com.google.api.services.pubsub.model.PubsubMessage;
 
 @RestController
 @Log4j2
@@ -49,8 +48,7 @@ public class PipelineController {
       return new ResponseEntity("invalid Pub/Sub pubSubMessage", HttpStatus.BAD_REQUEST);
     }
     try {
-      PubSubMessageProperties pubSubMessageProperties = PubSubMessageParser.parsePubSubProperties(
-          pubSubMessage);
+      PubSubMessageProperties pubSubMessageProperties = PubSubMessageParser.parsePubSubProperties(pubSubMessage);
       if (pubSubMessageProperties == null) {
         //parse pubsub message as bq job notification
         PubSubMessageData pubSubMessageData = PubSubMessageParser.parsePubSubData(pubSubMessage.getData());

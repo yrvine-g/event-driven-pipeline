@@ -10,7 +10,8 @@ import java.util.Base64;
 import org.apache.commons.lang3.StringUtils;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.pubsub.v1.PubsubMessage;
+import com.google.api.services.pubsub.model.PubsubMessage;
+
 
 
 @Log4j2
@@ -51,13 +52,13 @@ public class PubSubMessageParser {
         .triggerFile(triggerFileName).build();
   }
 
-  public static PubSubMessageData parsePubSubData(ByteString data) throws JsonProcessingException, UnsupportedEncodingException {
-    String dataStr = data.toString("UTF8");
+  public static PubSubMessageData parsePubSubData(String data) throws JsonProcessingException, UnsupportedEncodingException {
+    //String dataStr = data.toString("UTF8");
     //String dataStr =
         //!StringUtils.isEmpty(data) ? new String(Base64.getDecoder().decode(data)) : "";
     ObjectMapper mapper = new ObjectMapper();
     mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-    PubSubMessageData dataObj = mapper.readValue(dataStr, PubSubMessageData.class);
+    PubSubMessageData dataObj = mapper.readValue(data, PubSubMessageData.class);
     return dataObj; 
 
   }
