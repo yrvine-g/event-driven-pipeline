@@ -1,18 +1,18 @@
 package com.example.cloudrun;
 
-import com.example.cloudrun.PubSubMessageBody.PubSubMessage;
 import java.util.Map;
 import lombok.extern.log4j.Log4j2;
 import java.util.Base64;
 import org.apache.commons.lang3.StringUtils;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.api.services.pubsub.model.PubsubMessage;
 
 
 @Log4j2
 public class PubSubMessageParser {
 
-  public static PubSubMessageProperties parsePubSubProperties(PubSubMessage message) {
+  public static PubSubMessageProperties parsePubSubProperties(PubsubMessage message) {
 
     Map<String, String> attributes = message.getAttributes();
     if (attributes == null) {

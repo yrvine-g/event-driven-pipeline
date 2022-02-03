@@ -26,6 +26,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.List;
+import com.google.api.services.pubsub.model.PubsubMessage;
+
 
 @RestController
 @Log4j2
@@ -36,9 +38,8 @@ public class PipelineController {
 
 
   @RequestMapping(value = "/", method = RequestMethod.POST)
-  public ResponseEntity receiveMessage(@RequestBody PubSubMessageBody pubSubMessageBody) {
+  public ResponseEntity receiveMessage(@RequestBody PubsubMessage pubSubMessage) {
     // Get PubSub pubSubMessage from request body.
-    PubSubMessageBody.PubSubMessage pubSubMessage = pubSubMessageBody.getMessage();
     if (pubSubMessage == null) {
       log.info("Bad Request: invalid Pub/Sub pubSubMessage format");
       return new ResponseEntity("invalid Pub/Sub pubSubMessage", HttpStatus.BAD_REQUEST);
