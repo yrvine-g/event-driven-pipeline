@@ -7,7 +7,7 @@ This sample shows how to create an event driven pipeline on Cloud Run via Pub/Su
 [![Run in Google Cloud][run_img]][run_link]
 
 [run_img]: https://storage.googleapis.com/cloudrun/button.svg
-[run_link]: https://deploy.cloud.run/?git_repo=https://github.com/yrvine-g/event-driven-pipeline&dir=pipeline/pubsub&cloudshell_tutorial=pipeline/pubsub/README.md
+[run_link]: https://deploy.cloud.run/?git_repo=https://github.com/yrvine-g/event-driven-pipeline&dir=pipeline/pubsub
 <---- **EDIT** ---->
 
 
