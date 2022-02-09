@@ -7,7 +7,7 @@ This sample shows how to create an event driven pipeline on Cloud Run via Pub/Su
 [![Run in Google Cloud][run_img]][run_link]
 
 [run_img]: https://storage.googleapis.com/cloudrun/button.svg
-[run_link]: https://deploy.cloud.run/?git_repo=https://github.com/GoogleCloudPlatform/java-docs-samples&dir=run/pubsub
+[run_link]: https://deploy.cloud.run/?git_repo=https://github.com/yrvine-g/event-driven-pipeline&dir=pipeline/pubsub
 <---- **EDIT** ---->
 
 
@@ -31,12 +31,13 @@ Configure environment variables:
 export MY_RUN_SERVICE=run-service
 export MY_RUN_CONTAINER=run-container
 export PROJECT=$(gcloud config get-value project)
-export MY_GCS_BUCKET="$(gcloud config get-value project)-gcs-bucket"
+#export MY_GCS_BUCKET="$(gcloud config get-value project)-gcs-bucket"
+export MY_GCS_BUCKET="event-driven-pipeline-bucket"
 export REGION=us-central1
 export SERVICE_ACCOUNT=cloud-run-pubsub-invoker1
 ```
 
-##Quickstart
+## Quickstart
 
 Use the [Jib Maven Plugin](https://github.com/GoogleContainerTools/jib/tree/master/jib-maven-plugin) to build and push container image:
 
@@ -76,8 +77,7 @@ gcloud pubsub subscriptions create pipelineTrigger --topic pipelineNotification 
 Create log sink
 ```shell
 gcloud logging sinks create bq-job-completed \
-pubsub.googleapis.com/projects/yrvine-rotation-demo/topics/pipelineNotification --log-filter='resource.type="bigquery_project"
-severity=INFO
-protoPayload.metadata.jobChange.job.jobStatus.jobState="DONE"'
+pubsub.googleapis.com/projects/yrvine-rotation-demo/topics/pipelineNotification \
+ --log-filter='resource.type="bigquery_project" severity=INFO protoPayload.metadata.jobChange.job.jobStatus.jobState="DONE"'
 
 ```
