@@ -26,8 +26,9 @@ Enable following APIs:
 * container registry 
 * cloud run handler
 
+```sh
 gcloud config set project MY_PROJECT
-
+```
 
 Configure environment variables:
 
@@ -44,6 +45,8 @@ export SERVICE_ACCOUNT=cloud-run-pubsub-invoker1
 ## Quickstart
 
 Use the [Jib Maven Plugin](https://github.com/GoogleContainerTools/jib/tree/master/jib-maven-plugin) to build and push container image:
+
+Go to folder with scr
 
 ```sh
 mvn compile jib:build -Dimage=gcr.io/$PROJECT/$MY_RUN_CONTAINER
@@ -77,7 +80,7 @@ gcloud run services add-iam-policy-binding $MY_RUN_SERVICE  \
 gcloud pubsub subscriptions create pipelineTrigger --topic pipelineNotification \  
  --push-endpoint=$RUN_SERVICE_URL \
  --push-auth-service-account=$SERVICE_ACCOUNT@$PROJECT.iam.gserviceaccount.com \
- [--ack-deadline=600]
+ --ack-deadline=600
 ```
 
 
@@ -86,4 +89,7 @@ Create log sink
 gcloud logging sinks create bq-job-completed \
 pubsub.googleapis.com/projects/yrvine-rotation-demo/topics/pipelineNotification \
  --log-filter='resource.type="bigquery_project" severity=INFO protoPayload.metadata.jobChange.job.jobStatus.jobState="DONE"'
+export LOG_SERVICE_ACCOUNT=$(gcloud logging sinks describe bq-job-completed --format='value(writerIdentity)')
+gcloud pubsub topics add-iam-policy-binding pipelineNotification \
+     --member=serviceAccount:LOG_SERVICE_ACCOUNT --role=roles/pubsub.publisher 
 ```
