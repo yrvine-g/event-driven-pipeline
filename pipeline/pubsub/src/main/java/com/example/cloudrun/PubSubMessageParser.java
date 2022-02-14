@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.api.services.pubsub.model.PubsubMessage;
 
-
 @Log4j2
 public class PubSubMessageParser {
 
@@ -22,9 +21,9 @@ public class PubSubMessageParser {
     String bucketId = attributes.get("bucketId");
     String objectId = attributes.get("objectId");
 
-    //return null if there is no objectId
+    // return null if there is no objectId
     if (objectId == null) {
-        return null;
+      return null;
     }
 
     String[] parsedObjectId = objectId.split("/");
@@ -38,18 +37,19 @@ public class PubSubMessageParser {
     String triggerFileName = parsedObjectId[3];
 
     return PubSubMessageProperties.builder()
-        .bucketId(bucketId).project(project).dataset(dataset).table(table)
-        .triggerFile(triggerFileName).build();
+        .bucketId(bucketId)
+        .project(project)
+        .dataset(dataset)
+        .table(table)
+        .triggerFile(triggerFileName)
+        .build();
   }
 
-  public static PubSubMessageData parsePubSubData(String data) throws JsonProcessingException{
-    String dataStr =
-        !StringUtils.isEmpty(data) ? new String(Base64.getDecoder().decode(data)) : "";
+  public static PubSubMessageData parsePubSubData(String data) throws JsonProcessingException {
+    String dataStr = !StringUtils.isEmpty(data) ? new String(Base64.getDecoder().decode(data)) : "";
     ObjectMapper mapper = new ObjectMapper();
     mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
     PubSubMessageData dataObj = mapper.readValue(dataStr, PubSubMessageData.class);
-    return dataObj; 
-
+    return dataObj;
   }
-
 }

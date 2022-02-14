@@ -21,7 +21,9 @@ import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.CopyWriter;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
+
 import java.util.Arrays;
+
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2
@@ -29,7 +31,7 @@ public class GCSAccessor {
 
   private static final Storage storage = StorageOptions.getDefaultInstance().getService();
 
-  public static void archiveFiles(String  sourceUri) {
+  public static void archiveFiles(String sourceUri) {
 
     String sourceBucketName = getBucketName(sourceUri);
     String targetBucketName = sourceBucketName + "_archival";
@@ -42,9 +44,7 @@ public class GCSAccessor {
     try {
 
       Page<Blob> blobs =
-          storage.list(
-              sourceBucketName,
-              Storage.BlobListOption.prefix(sourceObjectName));
+          storage.list(sourceBucketName, Storage.BlobListOption.prefix(sourceObjectName));
       log.info("Iterating the blobs");
       for (Blob blob : blobs.iterateAll()) {
         log.info("Blob is: " + blob.getName());
@@ -66,11 +66,11 @@ public class GCSAccessor {
     String bucket = path[0];
     return bucket;
   }
+
   public static String getObjectName(String filePath) {
     String[] path = filePath.replace("gs://", "").split("/");
     String objectName = String.join("/", Arrays.copyOfRange(path, 1, path.length));
 
     return objectName;
   }
-
 }

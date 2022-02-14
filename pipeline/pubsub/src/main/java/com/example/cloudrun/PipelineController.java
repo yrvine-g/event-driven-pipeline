@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 package com.example.cloudrun;
 
 import lombok.extern.log4j.Log4j2;
@@ -28,14 +27,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.List;
 import com.google.api.services.pubsub.model.PubsubMessage;
 
-
 @RestController
 @Log4j2
 public class PipelineController {
 
   private static final String TRIGGER_FILE_NAME = "trigger.txt";
   private static final String FILE_FORMAT = "AVRO";
-
 
   @RequestMapping(value = "/", method = RequestMethod.POST)
   public ResponseEntity receiveMessage(@RequestBody PipelineRequestBody request) {
@@ -46,31 +43,30 @@ public class PipelineController {
       return new ResponseEntity("invalid Pub/Sub pubSubMessage", HttpStatus.BAD_REQUEST);
     }
     try {
-      PubSubMessageProperties pubSubMessageProperties = PubSubMessageParser.parsePubSubProperties(
-          pubSubMessage);
+      PubSubMessageProperties pubSubMessageProperties =
+          PubSubMessageParser.parsePubSubProperties(pubSubMessage);
       if (pubSubMessageProperties == null) {
-        //parse pubsub message as bq job notification
-        PubSubMessageData pubSubMessageData = PubSubMessageParser.parsePubSubData(pubSubMessage.getData());
+        // parse pubsub message as bq job notification
+        PubSubMessageData pubSubMessageData =
+            PubSubMessageParser.parsePubSubData(pubSubMessage.getData());
         List<String> sourceUris = JobAccessor.checkJobCompeletion(pubSubMessageData);
         sourceUris.forEach((sourceUri -> GCSAccessor.archiveFiles(sourceUri)));
         return new ResponseEntity("job completed", HttpStatus.OK);
-      } else{ 
-        //pubsub message was a gcs notification
+      } else {
+        // pubsub message was a gcs notification
         if (TRIGGER_FILE_NAME.equals(pubSubMessageProperties.getTriggerFile())) {
           log.info("Found Trigger file, started BQ insert");
           BQAccessor.insertIntoBQ(pubSubMessageProperties, FILE_FORMAT);
-          //GCSAccessor.archiveFiles(pubSubMessageProperties);
+          // GCSAccessor.archiveFiles(pubSubMessageProperties);
           return new ResponseEntity("triggered successfully", HttpStatus.OK);
         } else {
           log.info("Not trigger file");
           return new ResponseEntity("Not trigger file", HttpStatus.OK);
         }
       }
-    } catch(RuntimeException | JsonProcessingException e){
+    } catch (RuntimeException | JsonProcessingException e) {
       log.error("failed to process the message", e);
       return new ResponseEntity(e.getMessage(), HttpStatus.OK);
     }
-
-
   }
 }

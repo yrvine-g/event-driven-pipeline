@@ -28,18 +28,22 @@ import com.google.cloud.bigquery.QueryJobConfiguration;
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2
-
 public class BQAccessor {
 
   private static final String EXTERNAL_TABLE_NAME = "externalTable";
 
-  public static void insertIntoBQ(PubSubMessageProperties pubSubMessageProperties,
-      String fileFormat) {
+  public static void insertIntoBQ(
+      PubSubMessageProperties pubSubMessageProperties, String fileFormat) {
 
-    //create sourceUri with format --> gs://bucket/project/dataset/table/table*
-    String sourceUri = String.format("gs://%s/%s/%s/%s/%s*", pubSubMessageProperties.getBucketId(),
-        pubSubMessageProperties.getProject(), pubSubMessageProperties.getDataset(),
-        pubSubMessageProperties.getTable(), pubSubMessageProperties.getTable());
+    // create sourceUri with format --> gs://bucket/project/dataset/table/table*
+    String sourceUri =
+        String.format(
+            "gs://%s/%s/%s/%s/%s*",
+            pubSubMessageProperties.getBucketId(),
+            pubSubMessageProperties.getProject(),
+            pubSubMessageProperties.getDataset(),
+            pubSubMessageProperties.getTable(),
+            pubSubMessageProperties.getTable());
     log.info("source URI is: {}", sourceUri);
 
     try {
@@ -50,16 +54,23 @@ public class BQAccessor {
 
       FormatOptions format = FormatOptions.of(fileFormat);
 
-      ExternalTableDefinition externalTable = ExternalTableDefinition.newBuilder(sourceUri, format)
-          .build();
+      ExternalTableDefinition externalTable =
+          ExternalTableDefinition.newBuilder(sourceUri, format).build();
 
       log.info("external table config: {}", externalTable);
 
-      String query = String.format("CREATE OR REPLACE TABLE `%s.%s.%s` AS SELECT * FROM %s",
-          pubSubMessageProperties.getProject(), pubSubMessageProperties.getDataset(), pubSubMessageProperties.getTable(), EXTERNAL_TABLE_NAME);
-      QueryJobConfiguration queryConfig = QueryJobConfiguration.newBuilder(query)
-          .addTableDefinition(EXTERNAL_TABLE_NAME, externalTable).build();
-      log.info("query we fired: {}" ,query);
+      String query =
+          String.format(
+              "CREATE OR REPLACE TABLE `%s.%s.%s` AS SELECT * FROM %s",
+              pubSubMessageProperties.getProject(),
+              pubSubMessageProperties.getDataset(),
+              pubSubMessageProperties.getTable(),
+              EXTERNAL_TABLE_NAME);
+      QueryJobConfiguration queryConfig =
+          QueryJobConfiguration.newBuilder(query)
+              .addTableDefinition(EXTERNAL_TABLE_NAME, externalTable)
+              .build();
+      log.info("query we fired: {}", query);
       JobInfo jobInfo = JobInfo.of(queryConfig);
       Job job = bigquery.create(jobInfo);
       JobId jobId = job.getJobId();

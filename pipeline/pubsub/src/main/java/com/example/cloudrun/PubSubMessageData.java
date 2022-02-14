@@ -15,6 +15,7 @@
  */
 
 package com.example.cloudrun;
+
 import com.google.cloud.bigquery.BigQueryError;
 import lombok.extern.log4j.Log4j2;
 
@@ -24,16 +25,17 @@ public class PubSubMessageData {
   private String insertId;
   private ProtoPayload protoPayload;
 
-  public PubSubMessageData(){
+  public PubSubMessageData() {}
+
+  public PubSubMessageData(String insertId, ProtoPayload protoPayload) {
+    this.insertId = insertId;
+    this.protoPayload = protoPayload;
   }
 
-  public PubSubMessageData(String insertId, ProtoPayload protoPayload){
-      this.insertId = insertId;
-      this.protoPayload = protoPayload;
-  }
   public String getInsertId() {
     return insertId;
   }
+
   public void setInsertId(String insertId) {
     this.insertId = insertId;
   }
@@ -41,20 +43,22 @@ public class PubSubMessageData {
   public ProtoPayload getProtoPayload() {
     return protoPayload;
   }
+
   public void setProtoPayload(ProtoPayload protoPayload) {
     this.protoPayload = protoPayload;
   }
 
   public class ProtoPayload {
-      private String resourceName;
+    private String resourceName;
 
-      public ProtoPayload(){
-      }
-      public String getResourceName() {
-        return resourceName;
-      }
-      public void setResourceName(String resourceName) {
-        this.resourceName = resourceName;
-      }  
+    public ProtoPayload() {}
+
+    public String getResourceName() {
+      return resourceName;
+    }
+
+    public void setResourceName(String resourceName) {
+      this.resourceName = resourceName;
+    }
   }
 }

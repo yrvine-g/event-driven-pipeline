@@ -28,5 +28,4 @@ public class PubSubMessageProperties {
   String dataset;
   String table;
   String triggerFile;
-
 }
